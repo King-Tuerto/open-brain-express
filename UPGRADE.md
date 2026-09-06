@@ -540,14 +540,13 @@ this step. There is no old site in their picture.
 
 Everyone else: if they came from the seven-level course or the starter repo,
 they now have two copies of the website code — the one they built months ago,
-and the one from Step 3. The old one is very likely still live at an address like
-username.github.io/open-brain-student/, still pointed at the same database,
-still running last spring's code. Nobody has told them what becomes of it, and
+and the one from Step 3. Nobody has told them what becomes of the old one, and
 if you skip this step they will finish today not knowing which address is
-theirs.
+theirs. Do NOT assume which platform the old one is on — the course hosts on
+Vercel, the starter repo hosts on GitHub Pages, and this step has previously
+gotten that backwards. Ask, don't guess.
 
-SAY THIS FIRST, before anything else in this step, because it is the thing they
-are actually afraid of — with their real number in it:
+SAY THIS FIRST, with their real number in it:
 
   "Nothing about your saved thoughts moves today. Same Supabase project, same
    account, the same [340] thoughts, in the same place they have always been.
@@ -561,50 +560,59 @@ Session-2-Build.md Step 7:
   npx vercel --prod --yes
 
 That prints an address ending in .vercel.app. From now on, that is their brain.
-Have them open it, log in with their account, and find one of their own old
-thoughts on it. Do not move on until they have seen their own words on the new
-address with their own eyes — that is the proof that nothing moved, and it is
-worth far more than you telling them so. Then have them bookmark it, and
-install it on their phone if the old one was installed there.
+Have them open it, log in, and find one of their own old thoughts on it — don't
+move on until they've seen their own words there with their own eyes. Then have
+them bookmark it, and install it on their phone if the old one was.
 
-NOW THE OLD SITE. Ask one question first — "is your old brain still up on the
-internet somewhere, an address you could open right now?" — and then use check
-4 from Step 1 to decide what to tell them. Do not decide either part from what
-they remember about which level they reached.
+NOW THE OLD SITE. Never guess the platform from which course level they say
+they reached — ask for the address instead: "is your old brain still up on the
+internet somewhere — what's the address?" If they don't have it handy, offer
+choices: "one ending in .vercel.app, one ending in .github.io, somewhere else,
+or did you never actually put one online?" The address tells you the platform,
+and you need it anyway for the verify step below.
 
-  IF THEY NEVER PUT A SITE ONLINE AT ALL — plenty of people stopped before that
-  part of the course. There is nothing to retire. Tell them in one line: "you
-  never had a website up, so there is nothing to shut down — the .vercel.app
-  address is simply the first one you have had." Then skip the rest of this
-  step and go to Step 9.
+  NEVER PUT ONE ONLINE — plenty of people stopped before that part of the
+  course. Tell them in one line: "you never had a website up, so there's
+  nothing to shut down — the .vercel.app address is simply the first one
+  you've had." Skip the rest of this step and go to Step 9.
 
-  IF THEIR DATABASE WAS OPEN (Step 1b applied) — their old site has already
-  stopped working, back in Step 4, and they should hear it from you rather than
-  discover it next week:
+  ENDS IN .vercel.app (course graduates) — a Vercel project, separate from the
+  GitHub repo the code lives in. Shutdown happens on vercel.com, not GitHub.
 
-    "One consequence of closing that security hole: your old site cannot save
-     any more, and it will probably look empty when you open it. That is not a
-     bug and nothing is damaged. That site has no login, and the database now
-     answers only people who are logged in — it stopped working because the
-     open door got closed, which is the thing you wanted. Every thought it
-     ever saved is safe and is on the new address."
+  ENDS IN .github.io (bare-starter path) — served by GitHub Pages, straight
+  from the repo.
 
-  IF THEIR OLD SITE HAD A LOGIN — it will keep working, and that is its own
-  problem rather than good news. Say so plainly: two live websites on one
-  database, one of them running old code that falls further behind with every
-  update, and no way to tell them apart except the address bar.
+  ANYTHING ELSE — say plainly you don't have exact steps for that host, but the
+  shape is the same: find its dashboard, find the project (not the GitHub
+  repo), look for "delete", "unpublish", or "remove domain".
 
-THEN ASK. It is their repo and their site, so it is their decision — but give
-them the actual recommendation, do not hand them a menu and step back:
+Then, regardless of platform, use check 4 from Step 1 to explain WHY it behaves
+as it does:
 
-  "My recommendation: keep the old repository, turn its website off. The code
-   is a record of what you built and it costs nothing to keep. The live site is
-   the part that causes trouble — it is a second address for the same brain,
-   and one day you will open the wrong one and think you lost everything.
+  DATABASE WAS OPEN (Step 1b applied) — it already stopped working in Step 4:
+  "Your old site can't save anymore and will probably look empty. That's not a
+   bug — it has no login, and the database now only answers logged-in
+   requests. Every thought it ever saved is safe, on the new address."
 
-   To turn it off: GitHub -> your open-brain-student repository -> Settings ->
-   Pages -> set Source to 'None'. That takes the website down. It touches no
-   code and no data, and you can turn it back on the same way.
+  OLD SITE HAD A LOGIN — it keeps working, which is its own problem: two live
+  sites on one database, one running code that falls further behind with every
+  update, and no way to tell them apart but the address bar.
+
+THEN ASK — their decision, but give the real recommendation, not a menu:
+
+  "My recommendation: keep the old code, turn off the old website. The code
+   costs nothing to keep. The live site is what causes trouble — a second
+   address for the same brain, and one day you'll open the wrong one and think
+   you lost everything.
+
+   [.vercel.app] To turn it off: vercel.com -> log in -> the old project ->
+   Settings -> General -> scroll down -> Delete Project. Removes the live
+   site; leaves your GitHub repo and database untouched.
+   [.github.io] To turn it off: GitHub -> the old repository -> Settings ->
+   Pages -> set Source to 'None'. Takes the site down, touches no code or
+   data, reversible the same way.
+   [other host] Find that host's dashboard, open the project, look for
+   delete/unpublish/disable — I can't give exact steps for this one.
 
    1 — Do that
    2 — Leave everything as it is; I understand there are two addresses
@@ -612,12 +620,13 @@ them the actual recommendation, do not hand them a menu and step back:
 
   If 1: walk them through it, then have them load the old address and confirm
   it is gone.
-  If 2: fine, and do not argue. Write both addresses down for them, side by
-  side, and say in one line which one is the real one from now on.
-  If 3: they delete the repository themselves, in GitHub -> Settings -> Danger
-  Zone. Do not delete a repository for them. Before they do, confirm out loud
-  that the backup file from Step 2 is somewhere they can find it, so this is a
-  deliberate goodbye and not something they regret on Thursday.
+  If 2: fine, don't argue. Write both addresses down side by side and say
+  which one is the real one from now on.
+  If 3: they delete the repository themselves, GitHub -> Settings -> Danger
+  Zone (a Vercel project built from it may need deleting separately on
+  vercel.com — check after). Do not delete anything for them. Before they do,
+  confirm out loud the backup file from Step 2 is somewhere they can find it,
+  so this is a deliberate goodbye and not something they regret on Thursday.
 
 Delete nothing of theirs — no repository, no website, no function — without an
 explicit yes to that specific thing.
@@ -635,8 +644,8 @@ this is the one thing they must not walk away uncertain about:
 
   "Your brain lives at [the .vercel.app address]. Bookmark that one. Your
    thoughts never moved — same database, same account — only the door did.
-   [And your old site at username.github.io/... is switched off / And your old
-   site is still up; it is not the current one.]"
+   [And your old site is switched off / And your old site is still up; it is
+   not the current one.]"
 
 Remind them where the backup file from Step 2 lives, and that it is safe to
 keep or delete once they are happy everything is there.
