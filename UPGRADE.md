@@ -656,25 +656,35 @@ THEN ASK — their decision, but give the real recommendation, not a menu:
    you lost everything.
 
    [.vercel.app] To turn it off: vercel.com -> log in -> the old project ->
-   Settings -> General -> scroll down -> Delete Project. Removes the live
-   site; leaves your GitHub repo and database untouched.
+   Settings -> General -> the 'Pause Project' section (sits just above
+   'Delete Project') -> Pause Project -> type the project name to confirm.
+   This can be undone any time — the same button then reads 'Resume Project'
+   — nothing is deleted, your code and database are untouched, and the site
+   comes back within a few minutes with no redeploy needed.
    [.github.io] To turn it off: GitHub -> the old repository -> Settings ->
    Pages -> set Source to 'None'. Takes the site down, touches no code or
-   data, reversible the same way.
-   [other host] Find that host's dashboard, open the project, look for
-   delete/unpublish/disable — I can't give exact steps for this one.
+   data, and can be undone the same way by switching Source back.
+   [other host] Find that host's dashboard, open the project, look for a
+   pause or unpublish option rather than delete — I can't give exact steps
+   for this one, but prefer whichever choice that host describes as
+   reversible.
 
    1 — Do that
    2 — Leave everything as it is; I understand there are two addresses
-   3 — I want the old repository gone entirely"
+   3 — I want the old site and repository gone entirely — this one cannot be
+       undone"
 
   If 1: walk them through it, then have them load the old address and confirm
-  it is gone.
+  it is down. Reassure them this can be reversed later if they change their
+  mind — nothing was deleted.
   If 2: fine, don't argue. Write both addresses down side by side and say
   which one is the real one from now on.
-  If 3: they delete the repository themselves, GitHub -> Settings -> Danger
-  Zone (a Vercel project built from it may need deleting separately on
-  vercel.com — check after). Do not delete anything for them. Before they do,
+  If 3: THIS ONE CANNOT BE UNDONE. For a .vercel.app project: vercel.com ->
+  the old project -> Settings -> General -> the bottom of the page -> 'Delete
+  Project' section -> Delete -> type the project name to confirm. They delete
+  the GitHub repository themselves separately — GitHub -> Settings -> Danger
+  Zone — deleting one does not delete the other, so both steps are needed if
+  they want it fully gone. Do not delete anything for them. Before they do,
   confirm out loud the backup file from Step 2 is somewhere they can find it,
   so this is a deliberate goodbye and not something they regret on Thursday.
 
