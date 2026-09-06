@@ -172,5 +172,7 @@ Already built one of these before — the seven-level course, the starter repo,
 or an earlier version of this one? If that was before August 12, 2026,
 upgrading gets you real search (not just similar-meaning matches), the
 ability to find a detail buried in a long saved article or video, and — for
-the oldest starter kits — a closed privacy hole. Don't start over. →
+the oldest starter kits — a closed privacy hole. Everything you saved stays
+where it is; the website moves to a new address, and the upgrade page tells you
+which one is yours and what to do with the old one. Don't start over. →
 **[UPGRADE](UPGRADE.md)**

@@ -18,12 +18,20 @@ detail buried inside a long article, video, or PDF you already saved, and,
 if you're on the very first starter kit, a privacy hole closed for good.
 Nothing you've already saved is touched or lost.
 
+Your thoughts do not move: same database, same account, same everything. The
+only thing that changes address is the website itself, and the last step makes
+sure you know exactly which one to bookmark before you finish.
+
 *¿Lo construiste antes del 12 de agosto de 2026? Al actualizar consigues
 búsqueda de verdad — que encuentra nombres y números exactos, no solo ideas
 parecidas — la posibilidad de encontrar un detalle escondido dentro de un
 artículo, video o PDF largo que ya guardaste, y, si usas el kit inicial más
 viejo, un hueco de privacidad cerrado para siempre. Nada de lo que ya
 guardaste se toca ni se pierde.*
+
+*Tus pensamientos no se mueven: la misma base de datos, la misma cuenta, todo
+igual. Lo único que cambia de dirección es el sitio web, y el último paso se
+asegura de que sepas exactamente cuál guardar en favoritos antes de terminar.*
 
 ---
 
@@ -257,6 +265,14 @@ IF they do NOT (Groups B and C, or anyone starting fresh for this upgrade):
   brain already uses — this upgrade keeps their existing project, it does not
   create a new one.
 
+  SAY WHAT THIS MEANS NOW, so Step 8b is not a surprise: what they just cloned
+  is a second copy of the WEBSITE code, not a second brain. It points at the
+  same Supabase project their old site already points at. Their thoughts are
+  not moved, not copied, not touched. What changes by the end of today is the
+  address they open in a browser — and if their old site is still live on the
+  internet, Step 8b decides what happens to it. Do not leave that hanging and
+  do not let them assume the old address keeps working.
+
 === STEP 4 — RUN THE SCHEMA UPGRADE ===
 
 Run the CURRENT migration.sql from the folder above against their EXISTING
@@ -298,17 +314,150 @@ Verify: count(*) from thoughts where user_id is null should now be 0.
 Same as Session-2-Build.md Step 4 onward: link the project if not already
 linked, set any secrets that are missing (OPENROUTER_API_KEY at minimum —
 check what is already set with `npx supabase secrets list` before asking them
-to re-enter something they already have), then deploy every function in
-supabase/functions/, including the new backfill-brain.
+to re-enter something they already have), then deploy the functions.
+
+TWO OF THEM NEED A FLAG. Deploy these six the normal way:
+
+  npx supabase functions deploy enrich-thought
+  npx supabase functions deploy capture-youtube
+  npx supabase functions deploy capture-url
+  npx supabase functions deploy search-brain
+  npx supabase functions deploy weekly-digest
+  npx supabase functions deploy backfill-brain
+
+and these two WITH the flag:
+
+  npx supabase functions deploy open-brain-mcp --no-verify-jwt
+  npx supabase functions deploy telegram-bot --no-verify-jwt
+
+Do not collapse this into "deploy everything in the folder". A deploy without
+that flag turns the login check back ON for that function, even if it was
+deployed with the flag months ago and has been working ever since. If that
+happens to the Telegram bot it goes completely silent — Telegram cannot send a
+Supabase login token, so every message is refused before the code runs and the
+logs stay empty, which is the worst kind of broken. If it happens to the MCP
+server, Claude Desktop says "server disconnected". Both would be this upgrade
+breaking something that worked this morning. Get the flag right the first time.
 
 IF they have no OpenRouter key at all (common for Group C, who may never have
 gotten that far): the schema upgrade above is still complete and their old
 thoughts are safe either way. Tell them plainly: "Your brain is upgraded and
 your thoughts are safe. The next part — making your OLD thoughts searchable
 by meaning — needs an AI key, which you don't have set up yet. That's fine,
-we can do that whenever you're ready; nothing expires." Then stop here and
-point them at Session 1's OpenRouter section when they are ready, rather than
-blocking the whole upgrade on it.
+we can do that whenever you're ready; nothing expires." Then point them at
+Session 1's OpenRouter section for when they are ready, rather than blocking
+the whole upgrade on it.
+
+BUT DO NOT END THE SESSION THERE. Step 4 has already closed the security hole,
+which means their old website may already have stopped working. Skip ahead and
+do Step 8b before you stop — they need a working address and a straight answer
+about the old one far more than they need the backfill. Then finish.
+
+=== STEP 6b — TWO SECRETS THE TELEGRAM BOT NOW NEEDS ===
+
+SKIP THIS ENTIRE STEP if they never set up a Telegram bot. Ask; do not assume
+from which course they took.
+
+The bot you just deployed is stricter than the one the course had them write.
+It answers only its owner, and it writes thoughts that belong to a real
+account. That needs two secrets the course never asked for:
+
+  npx supabase secrets set TELEGRAM_CHAT_ID=...
+  npx supabase secrets set OWNER_USER_ID=...
+
+OWNER_USER_ID is the id of their account, from the SQL editor:
+  select id, email from auth.users;
+It is the same secret the MCP server uses (Session-2-Build.md Step 9), so it
+may already be set — check `npx supabase secrets list` before asking.
+
+If they do not know their chat id, they do not have to go looking for it. Have
+them message the bot once: it replies with their chat id and what to do with
+it. That reply is on purpose, not an error.
+
+Then redeploy so it picks the secrets up — with the flag, again:
+  npx supabase functions deploy telegram-bot --no-verify-jwt
+
+THE TELEGRAM WEBHOOK ITSELF NEEDS NOTHING DONE TO IT. It points at
+https://THEIR-PROJECT.supabase.co/functions/v1/telegram-bot — same project,
+same function name, same address — and this version checks no secret token and
+no extra header, so the registration they did in the course still works
+untouched. Do not re-register it, do not add a step for it.
+
+Verify by using it, which is faster than checking anything: have them send the
+bot a message.
+  - It saves and confirms -> the whole path works, move on.
+  - "This brain is not finished setting up", with a number -> that number IS
+    the TELEGRAM_CHAT_ID value. Set it, redeploy with the flag, try again.
+  - "Setup incomplete: OWNER_USER_ID is missing" -> exactly what it says.
+  - Total silence -> the flag was missed on the deploy. Redeploy with
+    --no-verify-jwt.
+
+=== STEP 6c — THE TWO OLD FUNCTIONS UNDERNEATH (course-built brains only) ===
+
+Have them open Supabase -> Edge Functions and read the list to you. Anyone who
+followed the seven-level course will have two functions this repo does not use
+anywhere:
+
+  call-llm            (course Level 5)
+  generate-embedding  (course Level 6)
+
+Everything that used to call them now does that work inside the functions you
+deployed in Step 6. Nothing points at them any more. They will sit there
+forever unless somebody removes them, and the person most likely to find them
+later and be confused is the person you are talking to.
+
+RECOMMEND DELETING BOTH. Say why in real terms, not tidiness:
+
+  "These two were the parts of your old brain that talked to the AI. Nothing
+   calls them now. The reason I would rather delete them than leave them
+   sitting there: each one will spend your AI credit for anyone who asks it
+   to, and the key needed to ask is the public one printed on your website.
+   That was already true before today — it is not something this upgrade
+   caused. What changed today is that they stopped being useful, so there is
+   no longer anything on the other side of that risk."
+
+  npx supabase functions delete call-llm
+  npx supabase functions delete generate-embedding
+
+If they would rather keep them, that is genuinely their call — say fine, and
+say plainly what they are keeping. Either way they must be TOLD these exist.
+Delete nothing without an explicit yes, and delete nothing whose name is not
+one of those two.
+
+=== STEP 6d — THE ENRICHMENT WEBHOOK (course-built brains only) ===
+
+Step 6 overwrote enrich-thought with this repo's version. The course had them
+wire a Database Webhook — Supabase -> Database -> Webhooks, usually named
+enrich-on-insert — that fires that function on every insert into thoughts.
+
+THAT WEBHOOK STILL WORKS. Do not re-point it and do not recreate it. This was
+checked against the code, not assumed: this version reads the incoming payload
+as `payload.record ?? payload`, which is exactly the { type, table, record,
+old_record } shape a Supabase database webhook sends; the function name and URL
+did not change; and the `Authorization: Bearer <service role key>` header the
+course had them add is still a valid token for it. There is nothing to do here.
+
+ONE REAL CHANGE, worth understanding rather than skipping: this version does
+nothing at all for a thought that has no user_id. It reads the user_id off the
+row and stops there if it is missing — no tags, no fingerprint, no links.
+Step 5's claim step fixes every OLD row, and the new app puts a user_id on
+every row it saves. So the only thing that can still write an unenrichable
+thought is a site with no login — which is exactly what their old website is.
+That is Step 8b's problem, and it is one more reason to settle it there.
+
+DO NOT ALSO CREATE THE SQL TRIGGER from Session-2-Build.md Step 6. That builds
+the same thing a second way, under a different name (on_thought_created), and
+the database will happily run both — every saved thought enriched twice and
+billed twice, with no error anywhere to show for it. Check what is already
+there before adding anything:
+
+  select tgname from pg_trigger
+   where tgrelid = 'thoughts'::regclass and not tgisinternal;
+
+If that returns a trigger, they are covered. Only if it returns nothing do they
+need Session-2-Build.md Step 6. Apply the same caution to the weekly digest
+schedule in that same step — check `select jobname from cron.job;` first rather
+than scheduling a second copy.
 
 === STEP 7 — COST ESTIMATE, THEN BACKFILL. ASK BEFORE SPENDING. ===
 
@@ -381,6 +530,98 @@ None of this affects what they already had — every existing summary, tag,
 and thought is intact and backed up. This is only about how much of the OLD
 material benefits from the NEW full-text search.
 
+=== STEP 8b — WHICH ADDRESS IS THEIR BRAIN NOW. DO NOT LET THEM FINISH WITHOUT THIS. ===
+
+IF THEY ARE GROUP A — an Express brain that was only slightly behind — they
+have one website and it is already the right one. Redeploy it from their folder
+so the live site is running the code they just pulled (`npx vercel --prod
+--yes` from that folder), confirm the address still works, and skip the rest of
+this step. There is no old site in their picture.
+
+Everyone else: if they came from the seven-level course or the starter repo,
+they now have two copies of the website code — the one they built months ago,
+and the one from Step 3. The old one is very likely still live at an address like
+username.github.io/open-brain-student/, still pointed at the same database,
+still running last spring's code. Nobody has told them what becomes of it, and
+if you skip this step they will finish today not knowing which address is
+theirs.
+
+SAY THIS FIRST, before anything else in this step, because it is the thing they
+are actually afraid of — with their real number in it:
+
+  "Nothing about your saved thoughts moves today. Same Supabase project, same
+   account, the same [340] thoughts, in the same place they have always been.
+   The only thing changing address is the website. Your brain is the same
+   brain — the door you walk through to reach it is new."
+
+FIRST, PUT THE NEW ONE ONLINE. From the folder in Step 3, same as
+Session-2-Build.md Step 7:
+
+  npx vercel login
+  npx vercel --prod --yes
+
+That prints an address ending in .vercel.app. From now on, that is their brain.
+Have them open it, log in with their account, and find one of their own old
+thoughts on it. Do not move on until they have seen their own words on the new
+address with their own eyes — that is the proof that nothing moved, and it is
+worth far more than you telling them so. Then have them bookmark it, and
+install it on their phone if the old one was installed there.
+
+NOW THE OLD SITE. Ask one question first — "is your old brain still up on the
+internet somewhere, an address you could open right now?" — and then use check
+4 from Step 1 to decide what to tell them. Do not decide either part from what
+they remember about which level they reached.
+
+  IF THEY NEVER PUT A SITE ONLINE AT ALL — plenty of people stopped before that
+  part of the course. There is nothing to retire. Tell them in one line: "you
+  never had a website up, so there is nothing to shut down — the .vercel.app
+  address is simply the first one you have had." Then skip the rest of this
+  step and go to Step 9.
+
+  IF THEIR DATABASE WAS OPEN (Step 1b applied) — their old site has already
+  stopped working, back in Step 4, and they should hear it from you rather than
+  discover it next week:
+
+    "One consequence of closing that security hole: your old site cannot save
+     any more, and it will probably look empty when you open it. That is not a
+     bug and nothing is damaged. That site has no login, and the database now
+     answers only people who are logged in — it stopped working because the
+     open door got closed, which is the thing you wanted. Every thought it
+     ever saved is safe and is on the new address."
+
+  IF THEIR OLD SITE HAD A LOGIN — it will keep working, and that is its own
+  problem rather than good news. Say so plainly: two live websites on one
+  database, one of them running old code that falls further behind with every
+  update, and no way to tell them apart except the address bar.
+
+THEN ASK. It is their repo and their site, so it is their decision — but give
+them the actual recommendation, do not hand them a menu and step back:
+
+  "My recommendation: keep the old repository, turn its website off. The code
+   is a record of what you built and it costs nothing to keep. The live site is
+   the part that causes trouble — it is a second address for the same brain,
+   and one day you will open the wrong one and think you lost everything.
+
+   To turn it off: GitHub -> your open-brain-student repository -> Settings ->
+   Pages -> set Source to 'None'. That takes the website down. It touches no
+   code and no data, and you can turn it back on the same way.
+
+   1 — Do that
+   2 — Leave everything as it is; I understand there are two addresses
+   3 — I want the old repository gone entirely"
+
+  If 1: walk them through it, then have them load the old address and confirm
+  it is gone.
+  If 2: fine, and do not argue. Write both addresses down for them, side by
+  side, and say in one line which one is the real one from now on.
+  If 3: they delete the repository themselves, in GitHub -> Settings -> Danger
+  Zone. Do not delete a repository for them. Before they do, confirm out loud
+  that the backup file from Step 2 is somewhere they can find it, so this is a
+  deliberate goodbye and not something they regret on Thursday.
+
+Delete nothing of theirs — no repository, no website, no function — without an
+explicit yes to that specific thing.
+
 === STEP 9 — DONE ===
 
 Tell them what changed, in one short paragraph, using their real numbers:
@@ -388,6 +629,14 @@ old thought count, how many now have embeddings, how many are chunked,
 whether the security hole was closed. Point them at Session-3-Connect.md (or
 Sesion-3-Conectar.md) if they have not connected Claude Desktop yet — nothing
 about that changes with this upgrade.
+
+Then end on the address, every time, even if you already said it in Step 8b —
+this is the one thing they must not walk away uncertain about:
+
+  "Your brain lives at [the .vercel.app address]. Bookmark that one. Your
+   thoughts never moved — same database, same account — only the door did.
+   [And your old site at username.github.io/... is switched off / And your old
+   site is still up; it is not the current one.]"
 
 Remind them where the backup file from Step 2 lives, and that it is safe to
 keep or delete once they are happy everything is there.

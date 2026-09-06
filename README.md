@@ -37,14 +37,18 @@ idioma antes que nada. No necesitas tener nada instalado para empezar.*
 Built one before — the seven-level course, the bare-bones starter repo, or an
 earlier version of this Express repo? Don't start over. There's a page for
 bringing an existing brain up to date without losing anything in it, and it
-says plainly what upgrading actually gets you:
+says plainly what upgrading actually gets you. Your thoughts stay in the
+database they are already in — the only thing that gets a new address is the
+website, and the upgrade page settles what happens to your old one:
 
 # → **[UPGRADE / ACTUALIZAR](UPGRADE.md)** ←
 
 *¿Construiste uno antes — con el curso de siete niveles, el repositorio
 inicial, o una versión anterior de este repositorio Express? No empieces de
 cero. Hay una página para poner al día un cerebro existente sin perder nada
-de lo que ya tienes, y ahí te dice claramente qué consigues al actualizar.*
+de lo que ya tienes, y ahí te dice claramente qué consigues al actualizar. Tus
+pensamientos se quedan en la misma base de datos — lo único que estrena
+dirección es el sitio web, y esa página resuelve qué pasa con el viejo.*
 
 ---
 
