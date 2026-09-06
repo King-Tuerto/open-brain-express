@@ -1,0 +1,56 @@
+name: Keep the brain awake
+
+# Supabase pauses a free-tier project after about a week with no real API
+# activity, and a paused brain looks broken to whoever opens it next. This is
+# the OUTSIDE half of two independent backstops — a second one, using
+# pg_cron, lives inside the project's own database (see webhook.sql / Session
+# 2's build instructions). Neither is proven to actually stop the pause;
+# together they're the hedge against being wrong about which one Supabase
+# actually counts.
+#
+# This job reads nothing sensitive and writes nothing. It asks for one row
+# from the `thoughts` table using the public anon key, which the database's
+# own security rules (see migration.sql) already refuse to hand real rows to
+# — the point isn't the answer, it's that a real request reached the
+# project's API from outside it.
+#
+# KNOWN LIMITATION, READ THIS IF THE PINGS STOP: GitHub automatically
+# disables a scheduled workflow after 60 days with no commits to the
+# repository — and disables it by default the moment a public repo is
+# forked, before it has ever run once. If you don't see this running (repo's
+# Actions tab), go there and re-enable it. There's no way to prevent this
+# from GitHub's side; the in-project pg_cron job is exactly why this isn't
+# the only mechanism.
+
+on:
+  schedule:
+    - cron: '0 10 * * 1,5' # Mondays and Fridays, 10:00 UTC — twice a week
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read this project's Supabase URL and public key from config.js
+        id: cfg
+        run: |
+          URL=$(grep "SUPABASE_URL" config.js | sed -E "s/.*'([^']*)'.*/\1/")
+          KEY=$(grep "SUPABASE_ANON_KEY" config.js | sed -E "s/.*'([^']*)'.*/\1/")
+          if [ -z "$URL" ] || [ "$URL" = "PASTE_YOUR_PROJECT_URL_HERE" ]; then
+            echo "config.js hasn't been filled in yet — nothing to ping. Skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "::add-mask::$KEY"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "key=$KEY" >> "$GITHUB_OUTPUT"
+
+      - name: Ping the project's own API
+        if: steps.cfg.outputs.skip != 'true'
+        run: |
+          curl -sf "${{ steps.cfg.outputs.url }}/rest/v1/thoughts?select=id&limit=1" \
+            -H "apikey: ${{ steps.cfg.outputs.key }}" \
+            -H "Authorization: Bearer ${{ steps.cfg.outputs.key }}" \
+            -o /dev/null

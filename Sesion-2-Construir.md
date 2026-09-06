@@ -330,19 +330,52 @@ Then, in the SAME webhook.sql file, add the weekly digest schedule underneath:
     $CRON$
   );
 
-Tell them what this does, in one sentence: every Sunday morning their brain reads
-back the week and writes them a short report on what they were paying attention
-to — saved into the brain like any other thought.
+Tell them what this does, in one sentence, in Spanish: every Sunday morning
+their brain reads back the week and writes them a short report on what they
+were paying attention to — saved into the brain like any other thought.
 
 Mention that 08:00 UTC may not be 8am where they live, and that the comment at
 the bottom of weekly-digest/index.ts explains how to change it. Do not spend
 time on it now.
 
-Confirm both the trigger and the schedule registered:
+Then add one more schedule, in the same file, underneath the digest — this one
+keeps the project from falling asleep:
+
+  do $$
+  begin
+    if exists (select 1 from cron.job where jobname = 'keep-brain-awake') then
+      perform cron.unschedule('keep-brain-awake');
+    end if;
+  end $$;
+
+  -- Sundays and Wednesdays at 09:00 UTC — twice a week, comfortable margin
+  select cron.schedule(
+    'keep-brain-awake',
+    '0 9 * * 0,3',
+    $CRON$
+      select net.http_get(
+        url := 'https://THEIR_PROJECT_REF.supabase.co/rest/v1/thoughts?select=id&limit=1',
+        headers := '{"apikey":"THEIR_ANON_KEY","Authorization":"Bearer THEIR_ANON_KEY"}'::jsonb
+      );
+    $CRON$
+  );
+
+Tell them why, in one sentence, in Spanish: Supabase pauses a free-tier
+project after about a week with no real API activity, and a paused brain
+looks broken from the outside — this makes sure it never goes that long
+between real requests. Use THEIR_ANON_KEY here, not the service role key —
+this only ever reads a table an anon key already has no access to (it will
+get back an empty list, which is fine, that's still a real request), so there
+is nothing secret in this block at all. There is also a GitHub Actions
+workflow already in the repo doing the same ping from outside the project, as
+a backstop.
+
+Confirm all three registered:
   select jobname, schedule from cron.job;
 
-`webhook.sql` contains a secret. Make sure it is in `.gitignore` and never
-committed.
+`webhook.sql` contains a secret (the service role key used above, for the
+trigger and the digest — not for this keep-alive block). Make sure it is in
+`.gitignore` and never committed.
 
 === STEP 7 — PUT THE APP ON THE INTERNET ===
 

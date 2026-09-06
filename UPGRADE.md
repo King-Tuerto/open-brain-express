@@ -350,8 +350,9 @@ the whole upgrade on it.
 
 BUT DO NOT END THE SESSION THERE. Step 4 has already closed the security hole,
 which means their old website may already have stopped working. Skip ahead and
-do Step 8b before you stop — they need a working address and a straight answer
-about the old one far more than they need the backfill. Then finish.
+do Step 6e (needs no AI key) and Step 8b before you stop — they need a working
+address and a straight answer about the old one far more than they need the
+backfill. Then finish.
 
 === STEP 6b — TWO SECRETS THE TELEGRAM BOT NOW NEEDS ===
 
@@ -458,6 +459,55 @@ If that returns a trigger, they are covered. Only if it returns nothing do they
 need Session-2-Build.md Step 6. Apply the same caution to the weekly digest
 schedule in that same step — check `select jobname from cron.job;` first rather
 than scheduling a second copy.
+
+=== STEP 6e — KEEP THE PROJECT FROM PAUSING (everyone, not course-only) ===
+
+Supabase pauses a free-tier project after about a week with no real API
+activity, and a paused brain looks broken. Check first — this may already be
+there if their old build was recent enough to include it:
+
+  select jobname from cron.job where jobname = 'keep-brain-awake';
+
+If that returns nothing, have them run this once in the SQL editor, with
+their own project ref and anon key (already in their config.js) substituted
+in — same block now shipped in webhook.sql, same unschedule-if-exists pattern
+as the digest, safe to run twice:
+
+  create extension if not exists pg_net;
+  create extension if not exists pg_cron;
+  grant usage on schema cron to postgres;
+
+  do $$
+  begin
+    if exists (select 1 from cron.job where jobname = 'keep-brain-awake') then
+      perform cron.unschedule('keep-brain-awake');
+    end if;
+  end $$;
+
+  select cron.schedule(
+    'keep-brain-awake',
+    '0 9 * * 0,3',
+    $CRON$
+      select net.http_get(
+        url := 'https://THEIR_PROJECT_REF.supabase.co/rest/v1/thoughts?select=id&limit=1',
+        headers := '{"apikey":"THEIR_ANON_KEY","Authorization":"Bearer THEIR_ANON_KEY"}'::jsonb
+      );
+    $CRON$
+  );
+
+This uses the anon key, not the service role key — it only reads a table the
+anon key already has no access to (an empty list back is fine, it's still a
+real request), so nothing here is secret.
+
+There is also a GitHub Actions workflow doing the same thing from outside the
+project — it came along automatically with the repo they pulled or cloned in
+Step 3. ONE THING TO CHECK if they forked in Step 3 rather than reusing an
+existing folder: GitHub disables a forked repo's scheduled workflows by
+default. Have them open their fork's Actions tab and enable workflows if
+prompted to.
+
+Neither of these is proven to actually stop the pause — only that a real
+request goes out. Say that plainly if they ask; don't oversell it.
 
 === STEP 7 — COST ESTIMATE, THEN BACKFILL. ASK BEFORE SPENDING. ===
 
