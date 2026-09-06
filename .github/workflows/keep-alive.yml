@@ -38,17 +38,16 @@ jobs:
         run: |
           URL=$(grep "SUPABASE_URL" config.js | sed -E "s/.*'([^']*)'.*/\1/")
           KEY=$(grep "SUPABASE_ANON_KEY" config.js | sed -E "s/.*'([^']*)'.*/\1/")
-          if [ -z "$URL" ] || [ "$URL" = "PASTE_YOUR_PROJECT_URL_HERE" ]; then
-            echo "config.js hasn't been filled in yet — nothing to ping. Skipping."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            exit 0
+          if [ -z "$URL" ] || [ "$URL" = "PASTE_YOUR_PROJECT_URL_HERE" ] || \
+             [ -z "$KEY" ] || [ "$KEY" = "PASTE_YOUR_PUBLIC_KEY_HERE" ]; then
+            echo "::error::config.js in this repo still has placeholder values, so there is nothing to ping and this brain is NOT protected from pausing. THE ONE THING TO DO: commit config.js with your real Supabase project URL and key (Session 2, Step 11), then push. This check fails on purpose until that happens — a green run here would otherwise look like protection that isn't there."
+            exit 1
           fi
           echo "::add-mask::$KEY"
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "key=$KEY" >> "$GITHUB_OUTPUT"
 
       - name: Ping the project's own API
-        if: steps.cfg.outputs.skip != 'true'
         run: |
           curl -sf "${{ steps.cfg.outputs.url }}/rest/v1/thoughts?select=id&limit=1" \
             -H "apikey: ${{ steps.cfg.outputs.key }}" \

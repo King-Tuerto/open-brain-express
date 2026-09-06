@@ -360,6 +360,10 @@ which is fine, that's still a real request), so there is nothing secret in
 this block at all. There is also a GitHub Actions workflow already in the
 repo doing the same ping from outside the project, as a backstop.
 
+GitHub disables a forked repo's scheduled workflows by default — and every
+new builder forked in Step 1. Have them open their fork's Actions tab and
+enable workflows if prompted to, or this backstop is not actually running.
+
 Confirm all three registered:
   select jobname, schedule from cron.job;
 
