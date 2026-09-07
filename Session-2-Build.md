@@ -374,6 +374,16 @@ You should see two rows: weekly-brain-digest and keep-brain-awake. If either
 is missing, that schedule didn't take — go back and re-run its block above
 before moving on.
 
+The trigger is not a cron job, so it never appears in that list. Confirm it
+separately:
+  select tgname from pg_trigger
+   where tgrelid = 'thoughts'::regclass and not tgisinternal;
+
+You should see on_thought_created. If it is missing, enrichment will never
+fire — nothing they save will get tags, a category or a summary — and nothing
+will report an error, because there is no failure to report. Re-run the
+trigger block above before moving on.
+
 `webhook.sql` contains a secret (the service role key used above, for the
 trigger and the digest — not for this keep-alive block). Make sure it is in
 `.gitignore` and never committed.
@@ -476,7 +486,8 @@ while you can still fix them.
 
      select jobname, schedule, active from cron.job;
 
-   They should see weekly-brain-digest, '0 8 * * 0', active = true.
+   They should see two rows, both active = true: weekly-brain-digest on
+   '0 8 * * 0', and keep-brain-awake.
 
 === STEP 10b — PUT IT IN YOUR POCKET ===
 
