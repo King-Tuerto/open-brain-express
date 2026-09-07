@@ -13,7 +13,8 @@ on this page to answer them.
   Ready to go? → **[START HERE](START-HERE.md)**
 
 - **Yes — I already have a brain,** from the seven-level course, the
-  starter repo, or an earlier version of this Express repo.
+  current eight-level curriculum, the starter repo, or an earlier version
+  of this Express repo.
   → **[UPGRADE](UPGRADE.md)**
 
 Want the full picture first — what's included, what it costs, everything
@@ -40,9 +41,9 @@ esta página para responderlas.
   (dos minutos, sin tecnicismos)
   ¿Ya estás listo? → **[EMPIEZA AQUÍ](START-HERE.md)**
 
-- **Sí — ya tengo un cerebro,** del curso de siete niveles, del
-  repositorio inicial, o de una versión anterior de este repositorio
-  Express.
+- **Sí — ya tengo un cerebro,** del curso de siete niveles, del plan de
+  estudios actual de ocho niveles, del repositorio inicial, o de una
+  versión anterior de este repositorio Express.
   → **[ACTUALÍZALO](UPGRADE.md)**
 
 ¿Quieres el panorama completo primero — qué incluye, cuánto cuesta, todo lo

@@ -40,8 +40,9 @@ idioma antes que nada. No necesitas tener nada instalado para empezar.*
 
 ### Already have a brain? · ¿Ya tienes un cerebro?
 
-Built one before — the seven-level course, the bare-bones starter repo, or an
-earlier version of this Express repo? Don't start over. There's a page for
+Built one before — the seven-level course, the current eight-level
+curriculum, the bare-bones starter repo, or an earlier version of this
+Express repo? Don't start over. There's a page for
 bringing an existing brain up to date without losing anything in it, and it
 says plainly what upgrading actually gets you. Your thoughts stay in the
 database they are already in — the only thing that gets a new address is the
@@ -49,8 +50,9 @@ website, and the upgrade page settles what happens to your old one:
 
 # → **[UPGRADE / ACTUALIZAR](UPGRADE.md)** ←
 
-*¿Construiste uno antes — con el curso de siete niveles, el repositorio
-inicial, o una versión anterior de este repositorio Express? No empieces de
+*¿Construiste uno antes — con el curso de siete niveles, el plan de estudios
+actual de ocho niveles, el repositorio inicial, o una versión anterior de
+este repositorio Express? No empieces de
 cero. Hay una página para poner al día un cerebro existente sin perder nada
 de lo que ya tienes, y ahí te dice claramente qué consigues al actualizar. Tus
 pensamientos se quedan en la misma base de datos — lo único que estrena
@@ -180,7 +182,7 @@ Built from a working system by the author, who runs a version of this with
 thousands of thoughts and tens of thousands of automatic connections. This is a
 stripped-down version of that, meant to be stood up in an afternoon.
 
-There is also a longer seven-level course that teaches you to build all of this
-yourself, step by step, rather than having it installed for you. This version is
-for people who want the thing working. That version is for people who want to
-understand every piece.
+There is also a longer eight-level curriculum that teaches you to build all of
+this yourself, step by step, rather than having it installed for you. This
+version is for people who want the thing working. That version is for people
+who want to understand every piece.

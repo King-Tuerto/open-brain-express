@@ -8,10 +8,10 @@
 -- captures, and the connection graph.
 --
 -- SAFE TO RUN ON AN EXISTING BRAIN, ANY NUMBER OF TIMES. If you already built
--- one following the seven-level course, or you are re-running this after an
--- update, this adds only what is missing and does not touch a single thought
--- you have saved. See section 5 for the one extra step you will need after
--- your first run.
+-- one following the seven-level course, the current eight-level curriculum,
+-- or you are re-running this after an update, this adds only what is missing
+-- and does not touch a single thought you have saved. See section 5 for the
+-- one extra step you will need after your first run.
 -- ============================================================================
 
 
@@ -31,8 +31,9 @@ create extension if not exists vector;
 -- the security policies further down actually work.
 -- ---------------------------------------------------------------------------
 -- Written so it is safe to run on a brand new project OR on a brain you already
--- built following the seven-level course. If the table already exists, only the
--- missing pieces get added and nothing you have saved is touched.
+-- built following the seven-level course or the current eight-level curriculum.
+-- If the table already exists, only the missing pieces get added and nothing
+-- you have saved is touched.
 create table if not exists thoughts (
   id          uuid primary key default gen_random_uuid(),
   content     text not null,
@@ -50,6 +51,25 @@ alter table thoughts add column if not exists summary     text;
 alter table thoughts add column if not exists embedding   vector(1536);
 alter table thoughts add column if not exists enriched_at timestamptz;
 alter table thoughts add column if not exists metadata    jsonb default '{}'::jsonb;
+
+-- SOURCE RECOVERY FOR UPGRADING BRAINS: the course this repo can replace never
+-- had a `source` column, so the `default 'text'` above is what every one of
+-- its thoughts gets the moment this script adds the column — regardless of
+-- whether it was actually typed, or captured from Telegram, or from a URL or
+-- YouTube video. Two of those ARE recoverable: capture-url and capture-youtube
+-- have always written metadata->>'url' or metadata->>'video_id', in both this
+-- repo and the course, so a thought that has one of those but landed on the
+-- 'text' default was clearly not typed. Telegram versus genuinely-typed text
+-- is NOT recoverable this way — neither ever recorded anything that tells
+-- them apart — and stays 'text'. Harmless to run on a brain that never went
+-- through the course: those thoughts already got a real source value from
+-- the function that saved them, never the bare column default, so neither
+-- update below matches any row.
+update thoughts set source = 'youtube'
+  where source = 'text' and metadata ? 'video_id';
+
+update thoughts set source = 'url'
+  where source = 'text' and metadata ? 'url' and not (metadata ? 'video_id');
 
 -- NOTE ON user_id: it is deliberately nullable here, not "not null".
 --
@@ -233,6 +253,15 @@ create table if not exists thought_sources (
 create index if not exists idx_sources_thought on thought_sources(thought_id);
 
 alter table thought_sources enable row level security;
+
+-- If you are upgrading a brain built with the course, Level 2 there gave this
+-- table a browser-writable policy called own_sources — the course still saves
+-- straight from the browser at that point, before it has a server. Here,
+-- thought_sources is written only by edge functions using the service role
+-- key, which bypasses RLS entirely, so this table gets zero policies. Not a
+-- security problem either way — own_sources was correctly scoped to its
+-- owner — just a leftover permission this brain no longer needs.
+drop policy if exists "own_sources" on thought_sources;
 
 
 -- ---------------------------------------------------------------------------
@@ -507,6 +536,13 @@ create or replace view public.thoughts_needing_chunks as
 -- CREATE adds a new arity, and every call then fails with "function ... is
 -- not unique". Dropping by name is safe to re-run and immune to future
 -- signature changes.
+--
+-- search_thoughts is in this same list for a different reason: it is not an
+-- old name THIS function has ever had, it is the course's own hand-built
+-- search function (Level 6 or Level 7's version, either one). Nothing here
+-- is named search_thoughts or ever calls it, so on an upgrading brain it
+-- would otherwise sit in the database forever, unused. Cleaned up here, by
+-- name, the same safe way as everything else in this loop.
 -- ---------------------------------------------------------------------------
 do $drop$
 declare sig text;
@@ -514,7 +550,7 @@ begin
   for sig in
     select p.oid::regprocedure::text
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-    where p.proname in ('search_thoughts_semantic', 'search_thoughts_keyword', 'search_thoughts_hybrid')
+    where p.proname in ('search_thoughts', 'search_thoughts_semantic', 'search_thoughts_keyword', 'search_thoughts_hybrid')
       and n.nspname = 'public'
   loop
     execute 'drop function ' || sig;

@@ -164,12 +164,23 @@ read-only, nothing here writes or changes anything:
      from the original starter repo. Note this. You will tell them plainly
      in Step 1b, not fix it silently.
 
+     If thought_links exists (check 3 above), run the exact same test against
+     it too:
+       curl -s "https://THEIR-PROJECT.supabase.co/rest/v1/thought_links?select=id&limit=1" \
+         -H "apikey: THEIR_ANON_KEY"
+     The course has never protected this table at any level — unlike thoughts,
+     there was never a step that closed it, so anyone who reached Level 6 of
+     the course has had it open since the day they built it, independent of
+     whatever their thoughts table's own security looks like. Note this
+     separately from the thoughts check above; do not assume one answer tells
+     you the other.
+
   5. Whether they have a local folder with this repo (or an earlier Express
      version, or the seven-level course, or the starter repo) already cloned.
      Ask, and look for a package.json / migration.sql / index.html nearby if
      you are Claude Code.
 
-From all of this, work out which of these three pictures is closest to true —
+From all of this, work out which of these four pictures is closest to true —
 but tell them what you actually FOUND, in plain numbers, not a label:
 
   A. "Express, slightly behind" — has user_id, embedding, source, metadata,
@@ -190,6 +201,24 @@ but tell them what you actually FOUND, in plain numbers, not a label:
      leaves it open by default until a later step closes it, and plenty of
      people never took that step. Nothing has ever been searchable by
      meaning.
+  D. "Current-course graduate" — has every signal column Group A has
+     (user_id, embedding, thought_links, tags/category/summary, llm_usage)
+     PLUS dedup_key and thought_sources — both of which Group A is defined
+     above as LACKING. This is someone who reached Level 6 or 7 of the
+     CURRENT eight-level curriculum (curriculum/Level-0 through Level-7 —
+     not the old seven-level course Group B describes). If they also have
+     thought_chunks, they made it all the way through Level 7; if not, they
+     stopped at Level 6 — that table is the one thing Level 7 alone adds, so
+     its absence does not mean "Group A" here, only "hasn't reached Level 7
+     yet." Security has been closed since early in that course (Level 2),
+     not left open the way Group B sometimes is. They likely also have their
+     own hand-built edge functions doing what this repo's functions now do —
+     see Step 6c, which covers this group too.
+
+  Do not let A and D blur together on columns alone — the two overlap almost
+  entirely, and treating a Group D graduate as Group A matters later (Step 6c
+  hunts different old functions for each, and Step 8b does not actually key
+  off this label at all — see the note there).
 
 Do not silently categorise them into a bucket and move on. Say this — in
 their language, filling in the REAL numbers you found, not these examples:
@@ -217,6 +246,22 @@ about their brain, possibly for months. Do not slide past it. Say, plainly:
 Then continue. Do not stop and wait for permission to close a real security
 hole — closing it is not optional — but they must be TOLD, not left to find
 out later or never find out at all.
+
+If the thought_links check from Step 1 also came back open (or thought_links
+exists at all for a course-built brain — it has never been protected, at any
+level of the course, so assume it was open unless you tested otherwise), say
+so with the same plainness, even though nobody wrote a step telling them to
+close it in the past — there was never a step that opened it on purpose
+either, it was simply never closed:
+
+  "One more thing, on a different table this time: the connections between
+   your thoughts — thought_links — have been just as open as your thoughts
+   were, this whole time. Today's upgrade closes that too, in the same
+   migration. I'm telling you now for the same reason as before: you should
+   know it was open, not just find it already fixed."
+
+Then continue, the same way — closing it is not optional, telling them is not
+optional either.
 
 === STEP 2 — BACKUP. DO NOT SKIP. DO NOT PROCEED WITHOUT IT. ===
 
@@ -258,7 +303,7 @@ IF they already have an open-brain-express folder locally (Group A above):
   This gets them the latest migration.sql and edge functions without
   disturbing anything else in the folder (their config.js stays as-is).
 
-IF they do NOT (Groups B and C, or anyone starting fresh for this upgrade):
+IF they do NOT (Groups B, C, and D, or anyone starting fresh for this upgrade):
   They need to fork and clone this repo, exactly as in START-HERE.md Step 2
   point 1 and Step 4 — fork github.com/King-Tuerto/open-brain-express to
   their own account, then:
@@ -284,23 +329,40 @@ Supabase dashboard -> SQL Editor -> New query, paste the whole file, click
 Run. Confirm they see "Success."
 
 It is written to add only what is missing and touch nothing that already
-exists — safe regardless of which of the three starting pictures they had.
+exists — safe regardless of which of the four starting pictures they had.
 
 Verify: re-run the table check from Step 1. They should now see thoughts,
 thought_links, thought_sources, thought_chunks, llm_usage all present.
 
-Re-run the open-security check from Step 1 too, if it was open before.
-Confirm it now returns nothing without a real login.
+Re-run the open-security checks from Step 1 too, on both thoughts and
+thought_links, for whichever of the two were open before. Confirm each now
+returns nothing without a real login.
 
-=== STEP 5 — ACCOUNTS AND CLAIMING (only if they have no login yet) ===
+=== STEP 5 — ACCOUNTS AND CLAIMING ===
 
-IF they already have a login (Group A, and most of Group B): skip to Step 6.
+Check for orphaned thoughts regardless of which group they are — having a
+login already does NOT mean every thought belongs to someone. A Telegram bot
+built without OWNER_USER_ID set (an easy thing to have missed, and true of
+some earlier builds of the course's own Level 3) saves every message with no
+owner at all, even from someone who has had a working login since Level 2:
 
-IF they do not (Group C, and early-stopping Group B): they need a real
-account before their old thoughts can belong to anyone. Have them create one
-in the app (or via Supabase Authentication -> Users -> Add user, whichever is
-already working for their setup). Then run the claim step from migration.sql
-section 5, using the email they just signed up with:
+  select count(*) from thoughts where user_id is null;
+
+IF they already have a login AND this returns 0: nothing to claim, skip to
+Step 6.
+
+IF they do not have a login yet (Group C, and early-stopping Group B): they
+need a real account before any of their old thoughts can belong to anyone.
+Have them create one in the app (or via Supabase Authentication -> Users ->
+Add user, whichever is already working for their setup).
+
+IF they already have a login but the count above is greater than 0: some
+thoughts were saved without ever getting a user_id attached — most likely
+from a Telegram bot. There is nothing to set up; just proceed straight to the
+claim step below using their existing account's email.
+
+Either way, once they have an account, run the claim step from migration.sql
+section 5, using the email on that account:
 
   update thoughts set user_id = (select id from auth.users where email = '...')
     where user_id is null;
@@ -318,6 +380,18 @@ Same as Session-2-Build.md Step 4 onward: link the project if not already
 linked, set any secrets that are missing (OPENROUTER_API_KEY at minimum —
 check what is already set with `npx supabase secrets list` before asking them
 to re-enter something they already have), then deploy the functions.
+
+IF THEY ALREADY HAD AN OPENROUTER_API_KEY (course graduates, Group D — it was
+set up back in Level 6, for embeddings only): tell them plainly, before you
+deploy, that the same key is about to start doing more. Say something like:
+"Your OpenRouter key has only ever been billed for one small call per thought
+saved — the embedding. Once I deploy these functions, that same key also pays
+for tagging and summarising every save, the weekly digest, and transcribing
+any Telegram voice notes. Each individual call is still a fraction of a cent,
+and `select * from my_spend();` in the SQL editor always shows you the real
+total — but it's meaningfully more traffic through that one key than what
+Level 6 alone put through it, and better to know that before your next
+statement than after."
 
 TWO OF THEM NEED A FLAG. Deploy these six the normal way:
 
@@ -396,50 +470,99 @@ bot a message.
   - Total silence -> the flag was missed on the deploy. Redeploy with
     --no-verify-jwt.
 
-=== STEP 6c — THE TWO OLD FUNCTIONS UNDERNEATH (course-built brains only) ===
+=== STEP 6c — THE OLD FUNCTIONS UNDERNEATH (course-built brains only) ===
 
-Have them open Supabase -> Edge Functions and read the list to you. Anyone who
-followed the seven-level course will have two functions this repo does not use
-anywhere:
+Have them open Supabase -> Edge Functions and read the list to you. What is
+safe to find depends on which course they took, and Group D (the CURRENT
+eight-level curriculum) leaves behind more than the old one did:
 
-  call-llm            (course Level 5)
-  generate-embedding  (course Level 6)
+  Anyone who followed the OLD seven-level course (Group B):
+    call-llm            (course Level 5)
+    generate-embedding  (course Level 6)
 
-Everything that used to call them now does that work inside the functions you
-deployed in Step 6. Nothing points at them any more. They will sit there
-forever unless somebody removes them, and the person most likely to find them
-later and be confused is the person you are talking to.
+  Anyone who reached Level 6 or 7 of the CURRENT curriculum (Group D) may
+  additionally have:
+    call-llm             (Level 5)
+    generate-embedding   (Level 6)
+    backfill-embeddings  (Level 6 — a one-time backfill tool, run once and done)
+    backfill-links       (Level 6 — same)
+    backfill-chunks      (Level 7 — same, only if they reached Level 7)
 
-RECOMMEND DELETING BOTH. Say why in real terms, not tidiness:
+Everything that used to call any of these now does that work inside the
+functions you deployed in Step 6. Nothing points at them any more. They will
+sit there forever unless somebody removes them, and the person most likely to
+find them later and be confused is the person you are talking to.
 
-  "These two were the parts of your old brain that talked to the AI. Nothing
-   calls them now. The reason I would rather delete them than leave them
-   sitting there: each one will spend your AI credit for anyone who asks it
-   to, and the key needed to ask is the public one printed on your website.
-   That was already true before today — it is not something this upgrade
-   caused. What changed today is that they stopped being useful, so there is
-   no longer anything on the other side of that risk."
+RECOMMEND DELETING WHICHEVER OF THESE ACTUALLY SHOW UP on their list. Say why
+in real terms, not tidiness:
+
+  "These were the parts of your old brain that talked to the AI, plus any
+   one-time backfill tools you ran once and never needed again. Nothing calls
+   them now. The reason I would rather delete them than leave them sitting
+   there: each one will spend your AI credit for anyone who asks it to, and
+   the key needed to ask is the public one printed on your website. That was
+   already true before today — it is not something this upgrade caused. What
+   changed today is that they stopped being useful, so there is no longer
+   anything on the other side of that risk."
 
   npx supabase functions delete call-llm
   npx supabase functions delete generate-embedding
+  npx supabase functions delete backfill-embeddings
+  npx supabase functions delete backfill-links
+  npx supabase functions delete backfill-chunks
 
-If they would rather keep them, that is genuinely their call — say fine, and
-say plainly what they are keeping. Either way they must be TOLD these exist.
-Delete nothing without an explicit yes, and delete nothing whose name is not
-one of those two.
+Only run the delete command for a function that actually appeared on their
+list. If they would rather keep some or all of them, that is genuinely their
+call — say fine, and say plainly what they are keeping. Either way they must
+be TOLD these exist. Delete nothing without an explicit yes, and delete
+nothing whose name is not one of the ones above.
+
+ONE MORE THING TO TELL THEM, if they reached Level 6 or 7 (Group D): their
+database also had its own SQL function called search_thoughts — not an edge
+function, so it never showed up on the list above. Step 4's schema upgrade
+already dropped it for you, by name, the same safe way migration.sql cleans
+up everything else: this repo's equivalent is called search_thoughts_hybrid,
+so nothing here was ever going to call the course's search_thoughts, and it
+would otherwise have sat in their database forever, unused. Nothing left for
+you to do — just worth telling them why it quietly disappeared, the same as
+you would tell them about an old edge function. If they want to see for
+themselves that it's gone:
+
+  select p.oid::regprocedure::text
+  from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+  where p.proname = 'search_thoughts' and n.nspname = 'public';
+
+That should now return zero rows.
 
 === STEP 6d — THE ENRICHMENT WEBHOOK (course-built brains only) ===
 
 Step 6 overwrote enrich-thought with this repo's version. The course had them
 wire a Database Webhook — Supabase -> Database -> Webhooks, usually named
-enrich-on-insert — that fires that function on every insert into thoughts.
+enrich-on-insert — that fires that function on every insert into thoughts,
+configured through the dashboard rather than written as SQL by hand.
 
-THAT WEBHOOK STILL WORKS. Do not re-point it and do not recreate it. This was
-checked against the code, not assumed: this version reads the incoming payload
-as `payload.record ?? payload`, which is exactly the { type, table, record,
-old_record } shape a Supabase database webhook sends; the function name and URL
-did not change; and the `Authorization: Bearer <service role key>` header the
-course had them add is still a valid token for it. There is nothing to do here.
+Reading the code confirms this version is COMPATIBLE with that webhook: it
+reads the incoming payload as `payload.record ?? payload`, which is exactly
+the { type, table, record, old_record } shape a Supabase database webhook
+sends; the function name and URL did not change; and the `Authorization:
+Bearer <service role key>` header the course had them add is still a valid
+token for it. That is as far as reading the code can tell you, though — it
+proves the webhook WOULD still work if it fires, not that it still exists and
+still fires. A dashboard-configured Database Webhook is not something a SQL
+query can reliably confirm the way a hand-written trigger can, so do not
+assert it is working. Test it instead:
+
+  Have them save one new thought through the app, right now. Wait about 15
+  seconds, then check the Table Editor (or the Recent tab) for that row.
+  - Tags, a category, and a summary appear -> the webhook fired, enrichment
+    ran, this whole step is done, nothing to change or recreate.
+  - Nothing appears -> the webhook did not fire, or fired and something in
+    the new function failed. Check Supabase -> Edge Functions ->
+    enrich-thought -> Logs. Empty logs mean the webhook itself is the
+    problem (re-check Database -> Webhooks: does enrich-on-insert still
+    exist, still point at enrich-thought, still fire on INSERT into
+    thoughts?). Logs with an error mean the webhook is fine and the function
+    itself failed — read the error before doing anything else.
 
 ONE REAL CHANGE, worth understanding rather than skipping: this version does
 nothing at all for a thought that has no user_id. It reads the user_id off the
@@ -449,19 +572,22 @@ every row it saves. So the only thing that can still write an unenrichable
 thought is a site with no login — which is exactly what their old website is.
 That is Step 8b's problem, and it is one more reason to settle it there.
 
-DO NOT ALSO CREATE THE SQL TRIGGER from Session-2-Build.md Step 6. That builds
-the same thing a second way, under a different name (on_thought_created), and
-the database will happily run both — every saved thought enriched twice and
-billed twice, with no error anywhere to show for it. Check what is already
-there before adding anything:
+DO NOT CREATE THE SQL TRIGGER from Session-2-Build.md Step 6 unless the test
+above actually failed and pointed you at a genuinely missing webhook. That
+trigger builds the same thing a second way, under a different name
+(on_thought_created), and the database will happily run both — every saved
+thought enriched twice and billed twice, with no error anywhere to show for
+it. A quick query is still worth running first, to catch the case where a
+trigger already exists from some earlier fix attempt:
 
   select tgname from pg_trigger
    where tgrelid = 'thoughts'::regclass and not tgisinternal;
 
-If that returns a trigger, they are covered. Only if it returns nothing do they
-need Session-2-Build.md Step 6. Apply the same caution to the weekly digest
-schedule in that same step — check `select jobname from cron.job;` first rather
-than scheduling a second copy.
+If that returns a trigger, they are already covered — stop, do not add
+Session-2-Build.md Step 6 on top of it. If it returns nothing AND the observed
+test above failed, that is when Session-2-Build.md Step 6 is the fix. Apply
+the same caution to the weekly digest schedule in that same step — check
+`select jobname from cron.job;` first rather than scheduling a second copy.
 
 === STEP 6e — KEEP THE PROJECT FROM PAUSING (everyone, not course-only) ===
 
@@ -590,6 +716,14 @@ in their language, plainly, not buried in a wall of text:
     source-recovery pass in Step 7 could not get the ORIGINAL text back,
     only what is there today (or nothing, if the page is gone). The original
     summary is untouched either way.
+  - Whether an old course-built thought was originally typed by hand or sent
+    from Telegram: Step 4's schema upgrade recovers WEB and YOUTUBE captures
+    automatically (their metadata already recorded the url or video id, so
+    the upgrade could tell), but nothing in the course ever recorded whether
+    a given thought came from Telegram or was typed straight into the app —
+    there was nothing to re-derive that from. Those thoughts now show
+    source = 'text', which is the most honest label available for them, not
+    a guess dressed up as an answer.
 
 None of this affects what they already had — every existing summary, tag,
 and thought is intact and backed up. This is only about how much of the OLD
@@ -597,17 +731,27 @@ material benefits from the NEW full-text search.
 
 === STEP 8b — WHICH ADDRESS IS THEIR BRAIN NOW. DO NOT LET THEM FINISH WITHOUT THIS. ===
 
-IF THEY ARE GROUP A — an Express brain that was only slightly behind — they
-have one website and it is already the right one. Redeploy it from their folder
-so the live site is running the code they just pulled (`npx vercel --prod
---yes` from that folder), confirm the address still works, and skip the rest of
-this step. There is no old site in their picture.
+Branch on what ACTUALLY HAPPENED in Step 3, not on which group letter they got
+in Step 1. The two usually line up, but not always — Group A and Group D can
+look identical on columns, and even a genuine Group A person starts fresh here
+if they no longer have last time's folder (a new computer, a wiped drive).
+Trusting the label instead of the real fact is exactly what breaks this step
+for a Group D graduate: they share Group A's columns, so a label-only check
+wrongly tells them there is no old site to deal with — when a course graduate
+almost always has one.
 
-Everyone else: if they came from the seven-level course or the starter repo,
-they now have two copies of the website code — the one they built months ago,
-and the one from Step 3. Nobody has told them what becomes of the old one, and
-if you skip this step they will finish today not knowing which address is
-theirs. Do NOT assume which platform the old one is on — the course hosts on
+IF STEP 3 REUSED AN EXISTING open-brain-express FOLDER (`git pull`, no fresh
+fork or clone) — they have one website and it is already the right one.
+Redeploy it from their folder so the live site is running the code they just
+pulled (`npx vercel --prod --yes` from that folder), confirm the address still
+works, and skip the rest of this step. There is no old site in their picture.
+
+Everyone else — Step 3 forked and cloned a NEW copy, whichever group (A, B, C,
+or D) they came from: they now have two copies of the website code — the one
+they built before today, and the one from Step 3. Nobody has told them what
+becomes of the old one, and if you skip this step they will finish today not
+knowing which address is theirs. Do NOT assume which platform the old one is
+on — the course hosts on
 Vercel, the starter repo hosts on GitHub Pages, and this step has previously
 gotten that backwards. Ask, don't guess.
 

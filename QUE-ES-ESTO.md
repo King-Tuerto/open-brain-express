@@ -169,8 +169,9 @@ avanzas, y deja que Claude te explique un cambio antes de hacerlo.
 
 ¿Listo? → **[EMPIEZA AQUÍ](START-HERE.md)**
 
-¿Ya construiste uno de estos antes — con el curso de siete niveles, el
-repositorio inicial, o una versión anterior de este mismo? Si fue antes del
+¿Ya construiste uno de estos antes — con el curso de siete niveles, el plan
+de estudios actual de ocho niveles, el repositorio inicial, o una versión
+anterior de este mismo? Si fue antes del
 12 de agosto de 2026, al actualizarlo consigues búsqueda de verdad (no solo
 coincidencias por significado parecido), la posibilidad de encontrar un
 detalle escondido en un artículo o video largo que ya guardaste, y — para
