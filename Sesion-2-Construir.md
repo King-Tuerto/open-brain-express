@@ -372,10 +372,17 @@ a backstop.
 
 GitHub disables a forked repo's scheduled workflows by default — and every
 new builder forked in Step 1. Have them open their fork's Actions tab and
-enable workflows if prompted to, or this backstop is not actually running.
+enable workflows if prompted to. Then have them prove it, not just do it:
+open the "Keep the brain awake" workflow, click "Run workflow", and wait for
+the run to finish with a green check next to it. That's the confirmation
+this backstop actually runs for them — being told to enable it is not.
 
-Confirm all three registered:
+Confirm both are registered:
   select jobname, schedule from cron.job;
+
+You should see two rows: weekly-brain-digest and keep-brain-awake. If either
+is missing, that schedule didn't take — go back and re-run its block above
+before moving on.
 
 `webhook.sql` contains a secret (the service role key used above, for the
 trigger and the digest — not for this keep-alive block). Make sure it is in

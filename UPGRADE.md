@@ -504,7 +504,10 @@ project — it came along automatically with the repo they pulled or cloned in
 Step 3. ONE THING TO CHECK if they forked in Step 3 rather than reusing an
 existing folder: GitHub disables a forked repo's scheduled workflows by
 default. Have them open their fork's Actions tab and enable workflows if
-prompted to.
+prompted to. Then have them prove it, not just do it: open the "Keep the
+brain awake" workflow, click "Run workflow", and wait for the run to finish
+with a green check next to it. That's the confirmation this backstop actually
+runs for them — being told to enable it is not.
 
 Neither of these is proven to actually stop the pause — only that a real
 request goes out. Say that plainly if they ask; don't oversell it.
