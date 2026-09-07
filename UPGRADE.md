@@ -1,11 +1,13 @@
 # Upgrade an existing brain · Actualiza un cerebro que ya existe
 
 *Already have a brain — built weeks or months ago, maybe with the older
-seven-level course, maybe with the bare-bones starter repo, maybe with an
-earlier version of this Express repo? This page is for you.*
+seven-level course, maybe with the current eight-level curriculum, maybe with
+the bare-bones starter repo, maybe with an earlier version of this Express
+repo? This page is for you.*
 *¿Ya tienes un cerebro — construido hace semanas o meses, tal vez con el curso
-de siete niveles, tal vez con el repositorio inicial, tal vez con una versión
-anterior de este repositorio Express? Esta página es para ti.*
+de siete niveles, tal vez con el plan de estudios actual de ocho niveles, tal
+vez con el repositorio inicial, tal vez con una versión anterior de este
+repositorio Express? Esta página es para ti.*
 
 *Building your first brain instead? You want [START-HERE.md](START-HERE.md).*
 *¿Vas a construir tu primer cerebro? Necesitas [START-HERE.md](START-HERE.md).*
@@ -66,8 +68,9 @@ language they chose. Only commands and code stay in English.
 === WHO YOU ARE WORKING WITH ===
 
 Someone who already built an Open Brain at some point in the past — possibly
-following the older seven-level course, possibly from the bare-bones starter
-repo, possibly with an earlier version of this Express repo. They are not
+following the older seven-level course, possibly the current eight-level
+curriculum, possibly from the bare-bones starter repo, possibly with an
+earlier version of this Express repo. They are not
 technical. They will not debug anything. If something goes wrong, it must be
 safe to stop and safe to re-run — never a half-finished mess they are left
 holding.
@@ -445,8 +448,24 @@ account. That needs two secrets the course never asked for:
 
 OWNER_USER_ID is the id of their account, from the SQL editor:
   select id, email from auth.users;
-It is the same secret the MCP server uses (Session-2-Build.md Step 9), so it
-may already be set — check `npx supabase secrets list` before asking.
+It is the same secret the MCP server uses (Session-2-Build.md Step 9), so
+check `npx supabase secrets list` before asking — but what counts as "already
+set" depends on which course they took:
+
+  - A Group D graduate who took the current curriculum's Level 3 will already
+    have OWNER_USER_ID listed, set to their own UID. Nothing to do here but
+    confirm it.
+  - A Group D graduate from an EARLIER version of the course set that same UID
+    at Level 7, but under the name MCP_USER_ID — the two secrets were unified
+    later. `secrets list` will show MCP_USER_ID and no OWNER_USER_ID; that is
+    not "not set," it is set under the old name. Supabase secrets are masked
+    and cannot be renamed, so do not try to read MCP_USER_ID's value — just
+    look up the UID fresh from auth.users as above and set it under the
+    correct name:
+      npx supabase secrets set OWNER_USER_ID=<the uid from auth.users>
+    Leave MCP_USER_ID alone for now — Step 6c covers removing it.
+  - Anyone else (Groups A, B, C) will not have either secret yet — look up the
+    UID from auth.users as above.
 
 If they do not know their chat id, they do not have to go looking for it. Have
 them message the bot once: it replies with their chat id and what to do with
@@ -533,6 +552,17 @@ themselves that it's gone:
   where p.proname = 'search_thoughts' and n.nspname = 'public';
 
 That should now return zero rows.
+
+ONE MORE LEFTOVER, if Step 6b found MCP_USER_ID on their secrets list: once
+OWNER_USER_ID is set (Step 6b), MCP_USER_ID is dead — nothing in this repo
+reads it, and nothing in the current curriculum has read it since Level 7
+unified the two. Same reasoning as the edge functions above: nobody benefits
+from a secret sitting there unexplained, so recommend removing it too.
+
+  npx supabase secrets unset MCP_USER_ID
+
+Same rule as the functions above: only run this if MCP_USER_ID actually showed
+up on their list, and only with an explicit yes.
 
 === STEP 6d — THE ENRICHMENT WEBHOOK (course-built brains only) ===
 
