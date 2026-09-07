@@ -54,6 +54,10 @@ problem in plain language.
 If a deploy fails because of a Supabase or Deno change, fix the code. It is
 meant to be edited.
 
+The same applies to what's on screen: if a dashboard's menu, button, or layout
+doesn't match what a step describes, go by what's actually there. Vendor UIs
+get redesigned more often than this file gets updated.
+
 === WHAT YOU ARE BUILDING ===
 
 A personal knowledge base:
@@ -353,12 +357,17 @@ keeps the project from falling asleep:
 
 Tell them why, in one sentence: Supabase pauses a free-tier project after
 about a week with no real API activity, and a paused brain looks broken from
-the outside — this makes sure it never goes that long between real requests.
-Use THEIR_ANON_KEY here, not the service role key — this only ever reads a
-table an anon key already has no access to (it will get back an empty list,
-which is fine, that's still a real request), so there is nothing secret in
-this block at all. There is also a GitHub Actions workflow already in the
-repo doing the same ping from outside the project, as a backstop.
+the outside — this pings the project twice a week so it stays active. Use
+THEIR_ANON_KEY here, not the service role key — this only ever reads a table
+an anon key already has no access to (it will get back an empty list, which
+is fine, that's still a real request), so there is nothing secret in this
+block at all. There is also a GitHub Actions workflow already in the repo
+doing the same ping from outside the project, as a backstop.
+
+Say plainly, don't oversell it: neither of these is proven to actually stop
+a pause — only that a real request goes out. If the project pauses anyway,
+that's not a failure of this step; [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+covers how to bring it back in a few minutes with nothing lost.
 
 GitHub disables a forked repo's scheduled workflows by default — and every
 new builder forked in Step 1. Have them open their fork's Actions tab and
@@ -366,6 +375,12 @@ enable workflows if prompted to. Then have them prove it, not just do it:
 open the "Keep the brain awake" workflow, click "Run workflow", and wait for
 the run to finish with a green check next to it. That's the confirmation
 this backstop actually runs for them — being told to enable it is not.
+
+GitHub will also email the repo owner if a scheduled run of this workflow
+ever fails outright (an unfilled config.js triggers exactly that). Mention it
+in passing as a bonus, not the plan — nobody has confirmed that email
+actually lands, and the green check just now is the one thing you watched
+happen with your own eyes.
 
 Confirm both are registered:
   select jobname, schedule from cron.job;

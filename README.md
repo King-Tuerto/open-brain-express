@@ -15,6 +15,12 @@ either language.
 *hace una pregunta y te manda a la página correcta — cerebro nuevo o
 existente, en cualquiera de los dos idiomas.*
 
+**Already built one and something's broken?** → **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**
+finds it by what you're seeing, not by which session built it.
+*¿Ya construiste uno y algo no funciona?* →
+**[SOLUCION-DE-PROBLEMAS.md](SOLUCION-DE-PROBLEMAS.md)** *lo encuentra por lo
+que estás viendo, no por qué sesión lo construyó.*
+
 ---
 
 **New here? Two minutes of context first:**

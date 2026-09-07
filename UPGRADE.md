@@ -88,6 +88,9 @@ their actual saved thoughts. Read the database.
 - NEVER repeat a key, token or password back into the chat.
 - If a command fails, read the error, work out the cause, fix it, try again.
   Only stop if you have tried twice and are genuinely stuck.
+- If what's on screen doesn't match what a step describes, go by what's
+  actually there — vendor dashboards get redesigned more often than this file
+  gets updated.
 
 === FIRST, WORK OUT WHERE YOU ARE RUNNING ===
 
@@ -510,7 +513,16 @@ with a green check next to it. That's the confirmation this backstop actually
 runs for them — being told to enable it is not.
 
 Neither of these is proven to actually stop the pause — only that a real
-request goes out. Say that plainly if they ask; don't oversell it.
+request goes out. Say that plainly if they ask; don't oversell it. If it
+pauses anyway, that's not a failure of this step —
+[TROUBLESHOOTING.md](TROUBLESHOOTING.md) covers bringing it back in a few
+minutes with nothing lost.
+
+GitHub will also email the repo owner if a scheduled run of the workflow
+ever fails outright (an unfilled config.js triggers exactly that). Mention it
+as a bonus, not the plan — nobody has confirmed that email actually lands,
+and the green check just now is the one thing they watched happen with their
+own eyes.
 
 === STEP 7 — COST ESTIMATE, THEN BACKFILL. ASK BEFORE SPENDING. ===
 

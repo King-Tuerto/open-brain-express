@@ -19,6 +19,9 @@ on this page to answer them.
 Want the full picture first — what's included, what it costs, everything
 that's in the repo? → **[README](README.md)**
 
+Already built one and something's actually broken — worked before, doesn't
+now? → **[TROUBLESHOOTING](TROUBLESHOOTING.md)**
+
 That's it. Pick a link above.
 
 ---
@@ -44,5 +47,8 @@ esta página para responderlas.
 
 ¿Quieres el panorama completo primero — qué incluye, cuánto cuesta, todo lo
 que hay en el repositorio? → **[README](README.md)**
+
+¿Ya construiste uno y algo de verdad no funciona — funcionaba antes, ahora
+no? → **[SOLUCION-DE-PROBLEMAS](SOLUCION-DE-PROBLEMAS.md)**
 
 Eso es todo. Elige un enlace arriba.

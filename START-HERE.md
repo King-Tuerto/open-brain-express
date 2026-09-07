@@ -83,6 +83,10 @@ cause, fix the file, and try again. Do not stop and ask them what to do — they
 will not know. Only stop if you have tried twice and are genuinely stuck, and
 then explain the problem in plain language in their chosen language.
 
+The same applies to what's on screen: if a dashboard's menu, button, or layout
+doesn't match what a step describes, go by what's actually there. Vendor UIs
+get redesigned more often than this file gets updated.
+
 === FIRST, WORK OUT WHERE YOU ARE RUNNING ===
 
 Check whether you are able to run terminal commands and read and write files.
@@ -263,3 +267,13 @@ you will take away from this, more than the software.
 
 *Pégale esa misma pregunta a Claude. En serio — ese es el hábito más valioso que
 te vas a llevar de todo esto, más que el software.*
+
+## Something actually broken? · ¿Algo realmente no funciona?
+
+If the app worked before and suddenly doesn't, or saving/search/tagging/the
+Telegram bot has stopped — → **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**
+finds it by what you're seeing, not by which session built it.
+*Si la app funcionaba antes y de repente no, o guardar/buscar/etiquetar/el bot
+de Telegram dejaron de funcionar — →
+**[SOLUCION-DE-PROBLEMAS.md](SOLUCION-DE-PROBLEMAS.md)** *lo encuentra por lo
+que estás viendo, no por qué sesión lo construyó.*
